@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 import io.horizontalsystems.stellarkit.room.Tag.Type
 import kotlinx.datetime.Instant
 import org.stellar.sdk.MemoText
+import org.stellar.sdk.responses.operations.ChangeTrustOperationResponse
 import org.stellar.sdk.responses.operations.CreateAccountOperationResponse
 import org.stellar.sdk.responses.operations.OperationResponse
 import org.stellar.sdk.responses.operations.PaymentOperationResponse
@@ -26,9 +27,18 @@ data class Operation(
     val payment: Payment?,
     @Embedded
     val accountCreated: AccountCreated?,
+    @Embedded
+    val changeTrust: ChangeTrust?,
 ) {
     data class Payment(val amount: BigDecimal, val asset: StellarAsset, val from: String, val to: String)
     data class AccountCreated(val startingBalance: BigDecimal, val funder: String, val account: String)
+    data class ChangeTrust(
+        val trustor: String,
+        val trustee: String,
+        val asset: StellarAsset,
+        val limit: BigDecimal,
+        val liquidityPoolId: String
+    )
 
     fun tags(accountId: String): List<Tag> {
         val tags = mutableListOf<Tag>()
@@ -53,6 +63,16 @@ data class Operation(
             }
         }
 
+        changeTrust?.let { changeTrust ->
+            if (changeTrust.trustee == accountId) {
+                tags.add(Tag(id, Type.Outgoing, changeTrust.asset.id, listOf(changeTrust.trustor)))
+            }
+
+            if (changeTrust.trustor == accountId) {
+                tags.add(Tag(id, Type.Incoming, changeTrust.asset.id, listOf(changeTrust.trustee)))
+            }
+        }
+
         return tags
     }
 
@@ -60,6 +80,7 @@ data class Operation(
         fun fromApi(operationResponse: OperationResponse): Operation {
             var payment: Payment? = null
             var accountCreated: AccountCreated? = null
+            var changeTrust: ChangeTrust? = null
 
             when (operationResponse) {
                 is PaymentOperationResponse -> {
@@ -77,6 +98,15 @@ data class Operation(
                         account = operationResponse.account,
                     )
                 }
+                is ChangeTrustOperationResponse -> {
+                    changeTrust = ChangeTrust(
+                        trustor = operationResponse.trustor,
+                        trustee = operationResponse.trustee,
+                        asset = StellarAsset.Asset(operationResponse.assetCode, operationResponse.assetIssuer),
+                        limit = operationResponse.limit.toBigDecimal(),
+                        liquidityPoolId = operationResponse.liquidityPoolId,
+                    )
+                }
             }
 
             return Operation(
@@ -90,6 +120,7 @@ data class Operation(
                 type = operationResponse.type,
                 payment = payment,
                 accountCreated = accountCreated,
+                changeTrust = changeTrust,
             )
         }
     }
