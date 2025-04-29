@@ -9,6 +9,7 @@ import org.stellar.sdk.MemoText
 import org.stellar.sdk.responses.operations.CreateAccountOperationResponse
 import org.stellar.sdk.responses.operations.OperationResponse
 import org.stellar.sdk.responses.operations.PaymentOperationResponse
+import java.math.BigDecimal
 
 @Entity
 data class Operation(
@@ -22,12 +23,12 @@ data class Operation(
     val memo: String?,
     val type: String,
     @Embedded
-    val  payment: Payment?,
+    val payment: Payment?,
     @Embedded
     val accountCreated: AccountCreated?,
 ) {
-    data class Payment(val amount: String, val asset: StellarAsset, val from: String, val to: String)
-    data class AccountCreated(val startingBalance: String, val funder: String, val account: String)
+    data class Payment(val amount: BigDecimal, val asset: StellarAsset, val from: String, val to: String)
+    data class AccountCreated(val startingBalance: BigDecimal, val funder: String, val account: String)
 
     fun tags(accountId: String): List<Tag> {
         val tags = mutableListOf<Tag>()
@@ -63,7 +64,7 @@ data class Operation(
             when (operationResponse) {
                 is PaymentOperationResponse -> {
                     payment = Payment(
-                        amount = operationResponse.amount,
+                        amount = operationResponse.amount.toBigDecimal(),
                         asset = StellarAsset.fromSdkModel(operationResponse.asset),
                         from = operationResponse.from,
                         to = operationResponse.to,
@@ -71,7 +72,7 @@ data class Operation(
                 }
                 is CreateAccountOperationResponse -> {
                     accountCreated = AccountCreated(
-                        startingBalance = operationResponse.startingBalance,
+                        startingBalance = operationResponse.startingBalance.toBigDecimal(),
                         funder = operationResponse.funder,
                         account = operationResponse.account,
                     )
