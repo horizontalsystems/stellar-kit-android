@@ -34,9 +34,13 @@ android {
     buildFeatures {
         compose true
     }
+    packagingOptions {
+        exclude 'META-INF/versions/**'
+    }
 }
 
 dependencies {
+    implementation project(':stellarkit')
 
     implementation libs.androidx.core.ktx
     implementation libs.androidx.lifecycle.runtime.ktx
