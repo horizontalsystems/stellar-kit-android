@@ -117,6 +117,7 @@ class OperationManager(
                 SyncState.Synced
             }
         } catch (e: Throwable) {
+            Log.e("AAA", "Error on OperationManager:sync() $e")
             _syncStateFlow.update {
                 SyncState.NotSynced(e)
             }

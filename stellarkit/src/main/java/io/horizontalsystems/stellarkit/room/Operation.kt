@@ -37,7 +37,7 @@ data class Operation(
         val trustee: String,
         val asset: StellarAsset,
         val limit: BigDecimal,
-        val liquidityPoolId: String
+        val liquidityPoolId: String?
     )
 
     fun tags(accountId: String): List<Tag> {
