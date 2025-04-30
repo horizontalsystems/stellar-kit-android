@@ -23,11 +23,11 @@ data class Operation(
     val transactionSuccessful: Boolean,
     val memo: String?,
     val type: String,
-    @Embedded
+    @Embedded(prefix = "payment_")
     val payment: Payment?,
-    @Embedded
+    @Embedded(prefix = "account_")
     val accountCreated: AccountCreated?,
-    @Embedded
+    @Embedded(prefix = "trust_")
     val changeTrust: ChangeTrust?,
 ) {
     data class Payment(val amount: BigDecimal, val asset: StellarAsset, val from: String, val to: String)
