@@ -21,6 +21,7 @@ data class Operation(
     val sourceAccount: String,
     val transactionHash: String,
     val transactionSuccessful: Boolean,
+    val fee: BigDecimal?,
     val memo: String?,
     val type: String,
     @Embedded(prefix = "payment_")
@@ -116,6 +117,9 @@ data class Operation(
                 sourceAccount = operationResponse.sourceAccount,
                 transactionHash = operationResponse.transactionHash,
                 transactionSuccessful = operationResponse.transactionSuccessful,
+                fee = operationResponse.transaction?.feeCharged?.let {
+                    BigDecimal(it).movePointLeft(7).stripTrailingZeros()
+                },
                 memo = (operationResponse.transaction?.memo as? MemoText)?.text,
                 type = operationResponse.type,
                 payment = payment,

@@ -133,6 +133,8 @@ class OperationManager(
             .limit(limit)
             .order(order)
             .cursor(pagingToken)
+            .includeFailed(true)
+            .includeTransactions(true)
 
         val execute = operationsRequest.execute()
 

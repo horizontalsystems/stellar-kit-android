@@ -27,6 +27,8 @@ class StellarKit(
     network: Network,
     db: KitDatabase,
 ) {
+    private val stellarNetwork = network.toStellarNetwork()
+
     val isMainNet = network == Network.MainNet
     val sendFee: BigDecimal = BigDecimal(Transaction.MIN_BASE_FEE.toBigInteger(), 7)
 
@@ -149,7 +151,7 @@ class StellarKit(
             .build()
 
         val transactionBuilder =
-            TransactionBuilder(sourceAccount, Network.MainNet.toStellarNetwork())
+            TransactionBuilder(sourceAccount, stellarNetwork)
                 .addOperation(paymentOperation)
                 .setTimeout(180)
                 .setBaseFee(Transaction.MIN_BASE_FEE)
