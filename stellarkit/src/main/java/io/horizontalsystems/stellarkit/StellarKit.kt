@@ -125,6 +125,21 @@ class StellarKit(
         payment(Asset.create(assetId), recipient, amount, memo)
     }
 
+    fun createAccount(accountId: String, startingBalance: BigDecimal, memo: String?) {
+        val destination = KeyPair.fromAccountId(accountId)
+
+        val createAccountOperation = CreateAccountOperation.builder()
+            .destination(destination.accountId)
+            .startingBalance(startingBalance)
+            .build()
+
+        sendTransaction(createAccountOperation, memo)
+    }
+
+    fun enableAsset(assetId: String, memo: String?) {
+        changeTrust(Asset.create(assetId), memo)
+    }
+
     private fun changeTrust(asset: Asset, memo: String?) {
         val defaultLimit = BigDecimal("922337203685.4775807") // max int64(922337203685.4775807)
 
@@ -134,17 +149,6 @@ class StellarKit(
             .build()
 
         sendTransaction(changeTrustOperation, memo)
-    }
-
-    private fun createAccount(recipient: String, startingBalance: BigDecimal, memo: String?) {
-        val destination = KeyPair.fromAccountId(recipient)
-
-        val createAccountOperation = CreateAccountOperation.builder()
-            .destination(destination.accountId)
-            .startingBalance(startingBalance)
-            .build()
-
-        sendTransaction(createAccountOperation, memo)
     }
 
     private fun payment(asset: Asset, recipient: String, amount: BigDecimal, memo: String?) {
