@@ -48,6 +48,7 @@ class StellarKit(
     )
 
     private val operationManager = OperationManager(server, db.operationDao(), accountId)
+    private val updateManager = UpdateManager(server, accountId)
 
     val receiveAddress get() = accountId
 
@@ -63,9 +64,10 @@ class StellarKit(
 
     init {
         coroutineScope.launch {
-//            apiListener.transactionFlow.collect {
-//                handleOperation(it)
-//            }
+            updateManager.updateFlow.collect {
+                Log.i("AAA", "Observed update. Starting sync")
+                sync()
+            }
         }
     }
 
@@ -79,25 +81,14 @@ class StellarKit(
                 sync()
             },
             async {
-//                startListener()
+                startListener()
             }
         ).awaitAll()
     }
 
     fun stop() {
-//        this.stopListener()
+        this.stopListener()
     }
-
-//    private suspend fun handleOperation(operationId: String) {
-//        repeat(3) {
-//            delay(5000)
-//            if (operationManager.isOperationCompleted(operationId)) {
-//                return
-//            }
-//
-//            sync()
-//        }
-//    }
 
     fun operations(tagQuery: TagQuery, beforeId: Long? = null, limit: Int? = null): List<Operation> {
         return operationManager.operations(tagQuery, beforeId, limit)
@@ -107,15 +98,15 @@ class StellarKit(
         return operationManager.operationFlow(tagQuery)
     }
 
-//    fun startListener() {
-//        apiListener.start(address = address)
-//    }
+    private fun startListener() {
+        updateManager.start()
+    }
 
-//    fun stopListener() {
-//        apiListener.stop()
-//    }
+    private fun stopListener() {
+        updateManager.stop()
+    }
 
-    suspend fun sync() = coroutineScope {
+    private suspend fun sync() = coroutineScope {
         listOf(
             async {
                 balancesManager.sync()
