@@ -14,11 +14,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import org.stellar.sdk.Asset
 import org.stellar.sdk.AssetTypeNative
+import org.stellar.sdk.ChangeTrustAsset
 import org.stellar.sdk.KeyPair
 import org.stellar.sdk.Memo
 import org.stellar.sdk.Server
 import org.stellar.sdk.Transaction
 import org.stellar.sdk.TransactionBuilder
+import org.stellar.sdk.operations.ChangeTrustOperation
+import org.stellar.sdk.operations.CreateAccountOperation
 import org.stellar.sdk.operations.PaymentOperation
 import java.math.BigDecimal
 
@@ -124,16 +127,36 @@ class StellarKit(
     }
 
     fun sendNative(recipient: String, amount: BigDecimal, memo: String?) {
-        send(AssetTypeNative(), recipient, amount, memo)
+        payment(AssetTypeNative(), recipient, amount, memo)
     }
 
     fun sendAsset(assetId: String, recipient: String, amount: BigDecimal, memo: String?) {
-        send(Asset.create(assetId), recipient, amount, memo)
+        payment(Asset.create(assetId), recipient, amount, memo)
     }
 
-    private fun send(asset: Asset, recipient: String, amount: BigDecimal, memo: String?) {
-        if (!keyPair.canSign()) throw WalletError.WatchOnly
+    private fun changeTrust(asset: Asset, memo: String?) {
+        val defaultLimit = BigDecimal("922337203685.4775807") // max int64(922337203685.4775807)
 
+        val changeTrustOperation = ChangeTrustOperation.builder()
+            .asset(ChangeTrustAsset(asset))
+            .limit(defaultLimit)
+            .build()
+
+        sendTransaction(changeTrustOperation, memo)
+    }
+
+    private fun createAccount(recipient: String, startingBalance: BigDecimal, memo: String?) {
+        val destination = KeyPair.fromAccountId(recipient)
+
+        val createAccountOperation = CreateAccountOperation.builder()
+            .destination(destination.accountId)
+            .startingBalance(startingBalance)
+            .build()
+
+        sendTransaction(createAccountOperation, memo)
+    }
+
+    private fun payment(asset: Asset, recipient: String, amount: BigDecimal, memo: String?) {
         val destination = KeyPair.fromAccountId(recipient)
 
         // First, check to make sure that the destination account exists.
@@ -142,19 +165,24 @@ class StellarKit(
         // It will throw HttpResponseException if account does not exist or there was another error.
         server.accounts().account(destination.accountId)
 
-        val sourceAccount = server.accounts().account(accountId)
-
         val paymentOperation = PaymentOperation.builder()
             .destination(destination.accountId)
             .asset(asset)
             .amount(amount)
             .build()
 
-        val transactionBuilder =
-            TransactionBuilder(sourceAccount, stellarNetwork)
-                .addOperation(paymentOperation)
-                .setTimeout(180)
-                .setBaseFee(Transaction.MIN_BASE_FEE)
+        sendTransaction(paymentOperation, memo)
+    }
+
+    private fun sendTransaction(operation: org.stellar.sdk.operations.Operation, memo: String?) {
+        if (!keyPair.canSign()) throw WalletError.WatchOnly
+
+        val sourceAccount = server.accounts().account(accountId)
+
+        val transactionBuilder = TransactionBuilder(sourceAccount, stellarNetwork)
+            .addOperation(operation)
+            .setTimeout(180)
+            .setBaseFee(Transaction.MIN_BASE_FEE)
 
         memo?.let {
             transactionBuilder.addMemo(Memo.text(memo))
