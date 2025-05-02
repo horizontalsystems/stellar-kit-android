@@ -81,6 +81,7 @@ class BalancesManager(
             }
 
         } catch (e: Throwable) {
+            Log.e("AAA", "error on BalancesManager::sync() $e")
             _syncStateFlow.update {
                 SyncState.NotSynced(e)
             }
