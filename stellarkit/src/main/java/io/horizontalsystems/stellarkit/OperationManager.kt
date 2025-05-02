@@ -20,7 +20,7 @@ import org.stellar.sdk.requests.RequestBuilder
 class OperationManager(
     private val server: Server,
     private val dao: OperationDao,
-    private val address: String,
+    private val accountId: String,
 ) {
     private val operationFlow = MutableSharedFlow<OperationInfoWithTags>()
 
@@ -71,7 +71,7 @@ class OperationManager(
                 var pagingToken = latestOperation.pagingToken
 
                 do {
-                    val operations = getOperations(address, pagingToken, limit, RequestBuilder.Order.ASC)
+                    val operations = getOperations(accountId, pagingToken, limit, RequestBuilder.Order.ASC)
                     Log.d("AAA", "Got latest operations: ${operations.size}, pagingToken: $pagingToken")
 
                     handle(operations, false)
@@ -93,7 +93,7 @@ class OperationManager(
                 val oldestOperation = dao.oldestOperation()
                 var pagingToken = oldestOperation?.pagingToken
                 do {
-                    val operations = getOperations(address, pagingToken, limit, RequestBuilder.Order.DESC)
+                    val operations = getOperations(accountId, pagingToken, limit, RequestBuilder.Order.DESC)
                     Log.d("AAA", "Got history operations: ${operations.size}, pagingToken: $pagingToken")
 
                     handle(operations, true)
@@ -125,11 +125,10 @@ class OperationManager(
     }
 
     private fun getOperations(
-        address: String, pagingToken: String?, limit: Int, order: RequestBuilder.Order
+        accountId: String, pagingToken: String?, limit: Int, order: RequestBuilder.Order
     ): List<Operation> {
-        Log.e("AAA", "order: $order")
         val operationsRequest = server.operations()
-            .forAccount(address)
+            .forAccount(accountId)
             .limit(limit)
             .order(order)
             .cursor(pagingToken)
@@ -148,7 +147,7 @@ class OperationManager(
 
         dao.save(operations)
         val operationWithTags = operations.map { operation ->
-            OperationWithTags(operation, operation.tags(address))
+            OperationWithTags(operation, operation.tags(accountId))
         }
 
         val tags = operationWithTags.map { it.tags }.flatten()
