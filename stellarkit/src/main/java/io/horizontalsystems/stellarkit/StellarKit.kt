@@ -5,6 +5,7 @@ import android.util.Log
 import io.horizontalsystems.stellarkit.room.KitDatabase
 import io.horizontalsystems.stellarkit.room.Operation
 import io.horizontalsystems.stellarkit.room.OperationInfo
+import io.horizontalsystems.stellarkit.room.StellarAsset
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -54,11 +55,6 @@ class StellarKit(
 
     val operationsSyncStateFlow by operationManager::syncStateFlow
     val syncStateFlow by balancesManager::syncStateFlow
-    val balanceFlow by balancesManager::xlmBalanceFlow
-    val assetBalanceMapFlow by balancesManager::assetBalanceMapFlow
-
-    val balance get() = balanceFlow.value
-    val assetBalanceMap get() = assetBalanceMapFlow.value
 
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
 
@@ -70,6 +66,8 @@ class StellarKit(
             }
         }
     }
+
+    fun getBalanceFlow(asset: StellarAsset) = balancesManager.getBalanceFlow(asset)
 
     suspend fun refresh() {
         sync()

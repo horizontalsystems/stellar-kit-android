@@ -9,7 +9,6 @@ import androidx.room.TypeConverters
 @Database(
     entities = [
         AssetBalance::class,
-        AssetNativeBalance::class,
         Operation::class,
         OperationSyncState::class,
         Tag::class,

@@ -11,6 +11,13 @@ sealed class StellarAsset {
         }
     }
 
+    override fun hashCode() = id.hashCode()
+    override fun equals(other: Any?): Boolean {
+        if (other !is StellarAsset) return false
+
+        return id == other.id
+    }
+
     companion object {
         fun fromSdkModel(asset: org.stellar.sdk.Asset) = when (asset) {
             is org.stellar.sdk.AssetTypeNative -> Native

@@ -1,12 +1,12 @@
 package io.horizontalsystems.stellarkit.room
 
 import androidx.room.Entity
+import androidx.room.PrimaryKey
 import java.math.BigDecimal
 
-@Entity(primaryKeys = ["code", "issuer"])
+@Entity
 data class AssetBalance(
-    val type: String,
-    val code: String,
-    val issuer: String,
+    @PrimaryKey
+    val asset: StellarAsset,
     val balance: BigDecimal,
 )
