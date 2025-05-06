@@ -62,9 +62,7 @@ class BalancesManager(
                 )
             }
 
-            if (assetBalances.isNotEmpty()) {
-                balanceDao.insertAll(assetBalances)
-            }
+            balanceDao.deleteAllAndInsertNew(assetBalances)
 
             _syncStateFlow.update {
                 SyncState.Synced
