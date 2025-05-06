@@ -18,6 +18,7 @@ import androidx.room.TypeConverters
 @TypeConverters(
     ConverterBigDecimal::class,
     ConverterStellarAsset::class,
+    ConverterStellarAssetAsset::class,
     ConverterListOfStrings::class,
 )
 abstract class KitDatabase : RoomDatabase() {

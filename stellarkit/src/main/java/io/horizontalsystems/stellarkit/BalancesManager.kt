@@ -22,10 +22,10 @@ class BalancesManager(
     val syncStateFlow = _syncStateFlow.asStateFlow()
 
     private val assetBalanceMapFlow = balanceDao.getAssetBalancesFlow().map {
-        it.map { it.asset to it.balance }.toMap()
+        it.map { it.asset to it }.toMap()
     }
 
-    fun getBalanceFlow(asset: StellarAsset): Flow<BigDecimal?> {
+    fun getBalanceFlow(asset: StellarAsset): Flow<AssetBalance?> {
         return assetBalanceMapFlow.map { it[asset] }.distinctUntilChanged()
     }
 
@@ -47,6 +47,9 @@ class BalancesManager(
 
             val assetBalances = mutableListOf<AssetBalance>()
 
+            val baseReserve = BigDecimal("0.5")
+            val minXlmBalance = BigDecimal(2 + account.subentryCount) * baseReserve
+
             account.balances.forEach { balance ->
                 val asset = if (balance.assetType == "native") {
                     StellarAsset.Native
@@ -54,10 +57,17 @@ class BalancesManager(
                     StellarAsset.Asset(balance.assetCode, balance.assetIssuer)
                 }
 
+                val minBalance = if (asset == StellarAsset.Native) {
+                    minXlmBalance
+                } else {
+                    BigDecimal.ZERO
+                }
+
                 assetBalances.add(
                     AssetBalance(
                         asset = asset,
                         balance = balance.balance.toBigDecimal(),
+                        minBalance = minBalance,
                     )
                 )
             }

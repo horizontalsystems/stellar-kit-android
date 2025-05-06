@@ -9,4 +9,5 @@ data class AssetBalance(
     @PrimaryKey
     val asset: StellarAsset,
     val balance: BigDecimal,
+    val minBalance: BigDecimal,
 )

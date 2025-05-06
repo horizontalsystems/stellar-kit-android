@@ -36,7 +36,7 @@ data class Operation(
     data class ChangeTrust(
         val trustor: String,
         val trustee: String,
-        val asset: StellarAsset,
+        val asset: StellarAsset.Asset,
         val limit: BigDecimal,
         val liquidityPoolId: String?
     )

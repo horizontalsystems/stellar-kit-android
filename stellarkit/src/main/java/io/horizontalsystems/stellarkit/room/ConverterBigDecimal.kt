@@ -39,3 +39,15 @@ class ConverterStellarAsset : Converter<StellarAsset> {
     @TypeConverter
     override fun toString(v: StellarAsset?) = v?.id
 }
+
+class ConverterStellarAssetAsset : Converter<StellarAsset.Asset> {
+    @TypeConverter
+    override fun fromString(s: String?) = try {
+        s?.let { StellarAsset.fromId(it) as? StellarAsset.Asset }
+    } catch (e: Exception) {
+        null
+    }
+
+    @TypeConverter
+    override fun toString(v: StellarAsset.Asset?) = v?.id
+}
