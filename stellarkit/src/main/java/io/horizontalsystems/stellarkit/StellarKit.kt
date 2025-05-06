@@ -137,6 +137,14 @@ class StellarKit(
     fun enableAsset(assetId: String, memo: String?) {
         changeTrust(Asset.create(assetId), memo)
     }
+    
+    fun isAssetEnabled(asset: StellarAsset.Asset): Boolean {
+        val account = server.accounts().account(accountId)
+
+        return account.balances.any {
+            asset.code == it.assetCode && asset.issuer == it.assetIssuer
+        }
+    }
 
     private fun changeTrust(asset: Asset, memo: String?) {
         val defaultLimit = BigDecimal("922337203685.4775807") // max int64(922337203685.4775807)
