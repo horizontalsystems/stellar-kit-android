@@ -134,6 +134,20 @@ class StellarKit(
         sendTransaction(createAccountOperation, memo)
     }
 
+    fun validateEnablingAsset() {
+        val balance = balancesManager.getBalance(StellarAsset.Native)
+
+        if (balance == null) {
+            throw EnablingAssetError.InsufficientBalance()
+        }
+
+        val availableBalance = balance.balance - balance.minBalance
+
+        if (availableBalance < BalancesManager.baseReserve - sendFee) {
+            throw EnablingAssetError.InsufficientBalance()
+        }
+    }
+
     fun enableAsset(assetId: String, memo: String?) {
         changeTrust(Asset.create(assetId), memo)
     }
@@ -236,4 +250,8 @@ class StellarKit(
             KeyPair.fromAccountId(address)
         }
     }
+}
+
+sealed class EnablingAssetError: Throwable() {
+    class InsufficientBalance: EnablingAssetError()
 }

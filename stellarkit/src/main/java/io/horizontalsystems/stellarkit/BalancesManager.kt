@@ -18,6 +18,10 @@ class BalancesManager(
     private val balanceDao: BalanceDao,
     private val accountId: String
 ) {
+    companion object {
+        val baseReserve = BigDecimal("0.5")
+    }
+
     private val _syncStateFlow = MutableStateFlow<SyncState>(SyncState.NotSynced(StellarKit.SyncError.NotStarted))
     val syncStateFlow = _syncStateFlow.asStateFlow()
 
@@ -47,7 +51,6 @@ class BalancesManager(
 
             val assetBalances = mutableListOf<AssetBalance>()
 
-            val baseReserve = BigDecimal("0.5")
             val minXlmBalance = BigDecimal(2 + account.subentryCount) * baseReserve
 
             account.balances.forEach { balance ->
@@ -84,5 +87,9 @@ class BalancesManager(
                 SyncState.NotSynced(e)
             }
         }
+    }
+
+    fun getBalance(asset: StellarAsset): AssetBalance? {
+        return balanceDao.getBalance(asset)
     }
 }
