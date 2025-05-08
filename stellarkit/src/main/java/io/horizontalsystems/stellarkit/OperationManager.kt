@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import org.stellar.sdk.Server
+import org.stellar.sdk.exception.BadRequestException
 import org.stellar.sdk.requests.RequestBuilder
 
 class OperationManager(
@@ -135,10 +136,18 @@ class OperationManager(
             .includeFailed(true)
             .includeTransactions(true)
 
-        val execute = operationsRequest.execute()
+        try {
+            val execute = operationsRequest.execute()
 
-        return execute.records.map {
-            Operation.fromApi(it)
+            return execute.records.map {
+                Operation.fromApi(it)
+            }
+        } catch (e: BadRequestException) {
+            if (e.code == 404) {
+                return listOf()
+            }
+
+            throw e
         }
     }
 

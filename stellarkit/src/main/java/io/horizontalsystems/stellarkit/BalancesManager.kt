@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import org.stellar.sdk.Server
+import org.stellar.sdk.exception.BadRequestException
 import java.math.BigDecimal
 
 class BalancesManager(
@@ -82,9 +83,15 @@ class BalancesManager(
             }
 
         } catch (e: Throwable) {
-            Log.e("AAA", "error on BalancesManager::sync() $e")
-            _syncStateFlow.update {
-                SyncState.NotSynced(e)
+            if (e is BadRequestException && e.code == 404) {
+                _syncStateFlow.update {
+                    SyncState.Synced
+                }
+            } else {
+                Log.e("AAA", "error on BalancesManager::sync() $e")
+                _syncStateFlow.update {
+                    SyncState.NotSynced(e)
+                }
             }
         }
     }
