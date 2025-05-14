@@ -21,6 +21,7 @@ import org.stellar.sdk.Memo
 import org.stellar.sdk.Server
 import org.stellar.sdk.Transaction
 import org.stellar.sdk.TransactionBuilder
+import org.stellar.sdk.exception.BadRequestException
 import org.stellar.sdk.operations.ChangeTrustOperation
 import org.stellar.sdk.operations.CreateAccountOperation
 import org.stellar.sdk.operations.PaymentOperation
@@ -151,12 +152,21 @@ class StellarKit(
     fun enableAsset(assetId: String, memo: String?) {
         changeTrust(Asset.create(assetId), memo)
     }
-    
-    fun isAssetEnabled(asset: StellarAsset.Asset): Boolean {
-        val account = server.accounts().account(accountId)
 
-        return account.balances.any {
-            asset.code == it.assetCode && asset.issuer == it.assetIssuer
+    fun isAssetEnabled(asset: StellarAsset.Asset) = isAssetEnabled(asset, accountId)
+
+    fun isAssetEnabled(asset: StellarAsset.Asset, recipient: String): Boolean {
+        try {
+            val account = server.accounts().account(recipient)
+
+            return account.balances.any {
+                asset.code == it.assetCode && asset.issuer == it.assetIssuer
+            }
+        } catch (e: BadRequestException) {
+            if (e.code == 404) {
+                return false
+            }
+            throw e
         }
     }
 
@@ -213,6 +223,16 @@ class StellarKit(
             Log.e("AAA", "Something went wrong!", e)
             throw e
         }
+    }
+
+    fun doesAccountExists(accountId: String) = try {
+        val destination = KeyPair.fromAccountId(accountId)
+        server.accounts().account(destination.accountId)
+        true
+    } catch (e: BadRequestException) {
+        false
+    } catch (e: Throwable) {
+        null
     }
 
     sealed class SyncError : Error() {
