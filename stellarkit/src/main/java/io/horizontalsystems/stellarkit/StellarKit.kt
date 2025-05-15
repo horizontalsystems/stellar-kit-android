@@ -225,14 +225,14 @@ class StellarKit(
         }
     }
 
-    fun doesAccountExists(accountId: String) = try {
+    fun doesAccountExist(accountId: String) = try {
         val destination = KeyPair.fromAccountId(accountId)
         server.accounts().account(destination.accountId)
         true
     } catch (e: BadRequestException) {
         false
     } catch (e: Throwable) {
-        null
+        throw e
     }
 
     sealed class SyncError : Error() {
