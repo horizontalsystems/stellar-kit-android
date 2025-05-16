@@ -252,23 +252,33 @@ class StellarKit(
             context: Context,
             walletId: String,
         ): StellarKit {
-            val keyPair = when (stellarWallet) {
-                is StellarWallet.Seed -> {
-                    KeyPair.fromBip39Seed(stellarWallet.seed, 0)
-                }
-
-                is StellarWallet.WatchOnly -> {
-                    KeyPair.fromAccountId(stellarWallet.addressStr)
-                }
-            }
+            val keyPair = getKeyPair(stellarWallet)
 
             val db = KitDatabase.getInstance(context, "stellar-${walletId}-${network.name}")
             return StellarKit(keyPair, network, db)
         }
 
+        private fun getKeyPair(stellarWallet: StellarWallet): KeyPair = when (stellarWallet) {
+            is StellarWallet.Seed -> KeyPair.fromBip39Seed(stellarWallet.seed, 0)
+            is StellarWallet.WatchOnly -> KeyPair.fromAccountId(stellarWallet.addressStr)
+            is StellarWallet.SecretKey -> KeyPair.fromSecretSeed(stellarWallet.secretSeed)
+        }
+
         fun validateAddress(address: String) {
             KeyPair.fromAccountId(address)
         }
+
+        fun isValidSecretKey(key: String) = try {
+            KeyPair.fromSecretSeed(key)
+            true
+        } catch (e: IllegalArgumentException) {
+            false
+        }
+
+        fun getSecretSeed(stellarWallet: StellarWallet) =
+            getKeyPair(stellarWallet).secretSeed?.let {
+                String(it)
+            }
     }
 }
 
