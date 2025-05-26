@@ -18,9 +18,15 @@ StellarKit is a lightweight and modular client for interacting with the [Stellar
 
 ## Installation
 
-Add the following to your `build.gradle`:
+Add the JitPack to module build.gradle
+```
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+```
 
-```groovy
+Add the following to your `build.gradle`:
+```
 dependencies {
     implementation 'com.github.horizontalsystems:stellar-kit-android:<version>'
 }
@@ -72,4 +78,3 @@ balanceFlow.collect { balance ->
 
 // Refresh data manually
 stellarKit.refresh()
-
