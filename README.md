@@ -46,36 +46,62 @@ Create an instance of `StellarKit` using the static method `getInstance`. It req
 - `context`: Android `Context` object
 - `walletId`: a unique string identifier for the wallet instance, useful to distinguish multiple StellarKit instances for different accounts
 
+
+## Synchronization
+
+The instance should be started to sync balances and operations. It also listens for updates. To do so you need to use the following methods:
+
 ```kotlin
-val stellarWallet = StellarWallet.SecretKey("your_secret_seed_here")
-val network = Network.TestNet
-val walletId = "unique_wallet_id"
+// to start syncing process and to listen for updates
+stellarKit.start()
 
-val stellarKit = StellarKit.getInstance(stellarWallet, network, context, walletId)
+// Observe syncing state
+stellarKit.syncStateFlow.collect { syncState ->
+    println("Sync State: $syncStateFlow")
+}
 
+// Observe syncing state of operations
+stellarKit.operationsSyncStateFlow.collect { syncState ->
+    println("Operations Sync State: $syncStateFlow")
+}
+
+// Refresh manually
+stellarKit.refresh()
+
+// You can stop the syncing process and updates listener by method stop
+stellarKit.stop()
+```
+
+## Sending Payments
+
+```kotlin
 // Send native asset
 stellarKit.sendNative("recipient_account_id", BigDecimal("10.0"), "optional memo")
 
-// Send custom asset
-stellarKit.sendAsset("ASSET_CODE:ISSUER_ACCOUNT_ID", "recipient_account_id", BigDecimal("5.0"), null)
-
-// Create account
+// If the recipient account does not exist you can create it
 stellarKit.createAccount("new_account_id", BigDecimal("1.0"), "Welcome!")
 
-// Enable asset
-stellarKit.enableAsset("ASSET_CODE:ISSUER_ACCOUNT_ID", "memo")
+// Send custom asset
+stellarKit.sendAsset("ASSET_CODE:ISSUER_ACCOUNT_ID", "recipient_account_id", BigDecimal("5.0"), "optional memo")
+```
 
-// Check if asset is enabled for an account
-val enabled = stellarKit.isAssetEnabled(StellarAsset.Asset("ASSET_CODE", "ISSUER_ACCOUNT_ID"))
+## Asset Management
 
-// Listen to balance updates
-val balanceFlow = stellarKit.getBalanceFlow(StellarAsset.Native)
-balanceFlow.collect { balance ->
-    println("Balance updated: $balance")
+```kotlin
+// Enable a custom asset
+stellarKit.enableAsset("ASSET_CODE:ISSUER_ACCOUNT_ID", "optional memo")
+
+// Check if asset is enabled
+val isEnabled = stellarKit.isAssetEnabled(StellarAsset.Asset("ASSET_CODE", "ISSUER_ACCOUNT_ID"))
+```
+
+## Observing Balances and Updates
+
+```kotlin
+// Observe balance changes for native asset
+stellarKit.getBalanceFlow(StellarAsset.Native).collect { balance ->
+    println("Native balance updated: $balance")
 }
-
-// Refresh data manually
-stellarKit.refresh()
 ```
 
 ## License
