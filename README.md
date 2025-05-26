@@ -46,8 +46,6 @@ Create an instance of `StellarKit` using the static method `getInstance`. It req
 - `context`: Android `Context` object
 - `walletId`: a unique string identifier for the wallet instance, useful to distinguish multiple StellarKit instances for different accounts
 
-Example
-
 ```kotlin
 val stellarWallet = StellarWallet.SecretKey("your_secret_seed_here")
 val network = Network.TestNet
