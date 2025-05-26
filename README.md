@@ -5,7 +5,7 @@ StellarKit is a lightweight and modular client for interacting with the [Stellar
 ## Features
 
 - Supports sending and receiving XLM and Stellar-based assets
-- Handles account creation and management
+- Handles account creation
 - Support for mainnet/testnet networks
 - Transaction building and signing
 - Account balance and transaction history retrieval
