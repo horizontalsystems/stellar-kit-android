@@ -76,3 +76,8 @@ balanceFlow.collect { balance ->
 
 // Refresh data manually
 stellarKit.refresh()
+```
+
+## License
+
+The `StellarKit` is open source and available under the terms of the [MIT License](https://github.com/horizontalsystems/stellar-kit-android/blob/master/LICENSE)
