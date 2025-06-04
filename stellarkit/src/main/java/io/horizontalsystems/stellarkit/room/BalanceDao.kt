@@ -24,4 +24,7 @@ interface BalanceDao {
 
     @Query("SELECT * FROM AssetBalance WHERE asset = :asset")
     fun getBalance(asset: StellarAsset): AssetBalance?
+
+    @Query("SELECT * FROM AssetBalance")
+    fun getAll(): List<AssetBalance>
 }

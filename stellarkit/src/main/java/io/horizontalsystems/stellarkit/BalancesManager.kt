@@ -99,4 +99,8 @@ class BalancesManager(
     fun getBalance(asset: StellarAsset): AssetBalance? {
         return balanceDao.getBalance(asset)
     }
+
+    fun getAll(): List<AssetBalance> {
+        return balanceDao.getAll()
+    }
 }

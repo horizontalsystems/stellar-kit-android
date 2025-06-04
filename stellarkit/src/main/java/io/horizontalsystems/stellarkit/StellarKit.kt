@@ -170,6 +170,10 @@ class StellarKit(
         }
     }
 
+    fun getEnabledAssetsCached(): List<StellarAsset.Asset> {
+        return balancesManager.getAll().map { it.asset }.filterIsInstance<StellarAsset.Asset>()
+    }
+
     private fun changeTrust(asset: Asset, memo: String?) {
         val defaultLimit = BigDecimal("922337203685.4775807") // max int64(922337203685.4775807)
 
