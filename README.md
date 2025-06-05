@@ -48,6 +48,19 @@ Create an instance of `StellarKit` using the static method `getInstance`. It req
 - `context`: Android `Context` object
 - `walletId`: a unique string identifier for the wallet instance, useful to distinguish multiple StellarKit instances for different accounts
 
+```kotlin
+val stellarWallet = StellarWallet.Seed(bip39Seed)
+// val stellarWallet = StellarWallet.SecretKey(secretSeed)
+// val stellarWallet = StellarWallet.WatchOnly(accountAddress)
+
+val stellarKit = StellarKit.getInstance(stellarWallet, Network.MainNet, context, "walletId")
+```
+
+You can generate a BIP39 seed using a library like [hd-wallet-kit-android](https://github.com/horizontalsystems/hd-wallet-kit-android)
+
+```kotlin
+val bip39Seed = Mnemonic().toSeed(words, passphrase)
+```
 
 ## Synchronization
 
@@ -115,7 +128,7 @@ stellarKit.getBalanceFlow(StellarAsset.Native).collect { balance ->
 
 ## Example Project
 
-All features of the library are used in the demo project located in the [app](/app) folder. It can be referred to as a starting point for using the library.
+All features of the library are used in the example project located in the [app](/app) folder. It can be referred to as a starting point for using the library.
 
 ## License
 
