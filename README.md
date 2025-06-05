@@ -1,6 +1,6 @@
 # StellarKit Android
 
-StellarKit is a lightweight and modular client for interacting with the [Stellar](https://www.stellar.org) blockchain, written in Kotlin for Android applications.
+StellarKit is a lightweight and modular client for interacting with the [Stellar](https://www.stellar.org) blockchain, written in Kotlin for Android applications. It's implemented and used by [Unstoppable Wallet](https://github.com/horizontalsystems/unstoppable-wallet-android), a multi-currency crypto wallet.
 
 ## Features
 
@@ -31,6 +31,8 @@ dependencies {
     implementation 'com.github.horizontalsystems:stellar-kit-android:<version>'
 }
 ```
+
+`<version>` - is the first 7 symbols of a commit hash
 
 ## Usage
 
@@ -72,6 +74,13 @@ stellarKit.refresh()
 stellarKit.stop()
 ```
 
+## Receive Address
+
+```kotlin
+// Get receive address
+stellarKit.receiveAddress
+```
+
 ## Sending Payments
 
 ```kotlin
@@ -103,6 +112,10 @@ stellarKit.getBalanceFlow(StellarAsset.Native).collect { balance ->
     println("Native balance updated: $balance")
 }
 ```
+
+## Example Project
+
+All features of the library are used in the demo project located in the `app` folder. It can be referred to as a starting point for using the library.
 
 ## License
 
