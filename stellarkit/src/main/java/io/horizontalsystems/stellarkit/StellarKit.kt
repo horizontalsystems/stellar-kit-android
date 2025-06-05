@@ -56,6 +56,7 @@ class StellarKit(
 
     val operationsSyncStateFlow by operationManager::syncStateFlow
     val syncStateFlow by balancesManager::syncStateFlow
+    val assetBalanceMapFlow by balancesManager::assetBalanceMapFlow
 
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
 

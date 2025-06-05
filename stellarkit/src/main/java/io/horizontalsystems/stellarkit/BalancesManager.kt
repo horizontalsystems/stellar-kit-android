@@ -26,7 +26,7 @@ class BalancesManager(
     private val _syncStateFlow = MutableStateFlow<SyncState>(SyncState.NotSynced(StellarKit.SyncError.NotStarted))
     val syncStateFlow = _syncStateFlow.asStateFlow()
 
-    private val assetBalanceMapFlow = balanceDao.getAssetBalancesFlow().map {
+    val assetBalanceMapFlow = balanceDao.getAssetBalancesFlow().map {
         it.map { it.asset to it }.toMap()
     }
 

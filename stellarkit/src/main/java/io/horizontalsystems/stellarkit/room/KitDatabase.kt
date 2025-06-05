@@ -28,6 +28,7 @@ abstract class KitDatabase : RoomDatabase() {
     companion object {
         fun getInstance(context: Context, name: String): KitDatabase {
             return Room.databaseBuilder(context, KitDatabase::class.java, name)
+                .allowMainThreadQueries()
                 .fallbackToDestructiveMigration()
                 .build()
         }
