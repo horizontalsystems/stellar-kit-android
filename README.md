@@ -115,7 +115,7 @@ stellarKit.getBalanceFlow(StellarAsset.Native).collect { balance ->
 
 ## Example Project
 
-All features of the library are used in the demo project located in the `app` folder. It can be referred to as a starting point for using the library.
+All features of the library are used in the demo project located in the [app](/app) folder. It can be referred to as a starting point for using the library.
 
 ## License
 
