@@ -29,8 +29,12 @@ class OperationManager(
         MutableStateFlow<SyncState>(SyncState.NotSynced(StellarKit.SyncError.NotStarted))
     val syncStateFlow = _syncStateFlow.asStateFlow()
 
-    fun operations(tagQuery: TagQuery, beforeId: Long?, limit: Int?): List<Operation> {
-        return dao.operations(tagQuery, beforeId ?: Long.MAX_VALUE, limit ?: 100)
+    fun operationsBefore(tagQuery: TagQuery, fromId: Long?, limit: Int?): List<Operation> {
+        return dao.operationsBefore(tagQuery, fromId ?: Long.MAX_VALUE, limit ?: 100)
+    }
+
+    fun operationsAfter(tagQuery: TagQuery, fromId: Long?, limit: Int?): List<Operation> {
+        return dao.operationsAfter( tagQuery,fromId ?: Long.MIN_VALUE, limit ?: 100)
     }
 
     fun operationFlow(tagQuery: TagQuery): Flow<OperationInfo> {

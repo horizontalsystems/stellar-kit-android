@@ -90,8 +90,12 @@ class StellarKit(
         this.stopListener()
     }
 
-    fun operations(tagQuery: TagQuery, beforeId: Long? = null, limit: Int? = null): List<Operation> {
-        return operationManager.operations(tagQuery, beforeId, limit)
+    fun operationsBefore(tagQuery: TagQuery, fromId: Long? = null, limit: Int? = null): List<Operation> {
+        return operationManager.operationsBefore(tagQuery, fromId, limit)
+    }
+
+    fun operationsAfter(tagQuery: TagQuery, fromId: Long? = null, limit: Int? = null): List<Operation> {
+        return operationManager.operationsAfter(tagQuery, fromId, limit)
     }
 
     fun operationFlow(tagQuery: TagQuery): Flow<OperationInfo> {

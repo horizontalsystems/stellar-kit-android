@@ -39,7 +39,7 @@ class TransactionsViewModel : ViewModel() {
     }
 
     private fun reloadEvents() {
-        operations = kit.operations(tagQuery, limit = 10 * page)
+        operations = kit.operationsBefore(tagQuery, limit = 10 * page)
         emitState()
     }
 

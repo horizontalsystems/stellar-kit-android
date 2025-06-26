@@ -12,7 +12,15 @@ import io.horizontalsystems.stellarkit.TagQuery
 @Dao
 interface OperationDao {
 
-    fun operations(tagQuery: TagQuery, beforeId: Long?, limit: Int): List<Operation> {
+    fun operationsBefore(tagQuery: TagQuery, fromId: Long?, limit: Int): List<Operation> {
+        return operations(tagQuery, fromId, true, limit)
+    }
+
+    fun operationsAfter(tagQuery: TagQuery, fromId: Long?, limit: Int): List<Operation> {
+        return operations(tagQuery, fromId, false, limit)
+    }
+
+    private fun operations(tagQuery: TagQuery, fromId: Long?, descending: Boolean, limit: Int): List<Operation> {
         val arguments = mutableListOf<String>()
         val whereConditions = mutableListOf<String>()
         var joinClause = ""
@@ -34,13 +42,14 @@ interface OperationDao {
             joinClause = "INNER JOIN tag ON operation.id = tag.operationId"
         }
 
-        beforeId?.let {
-            whereConditions.add("operation.id < ?")
+        fromId?.let {
+            val comparisonOperator = if (descending) "<" else ">"
+            whereConditions.add("operation.id $comparisonOperator ?")
             arguments.add(it.toString())
         }
 
         val limitClause = "LIMIT $limit"
-        val orderClause = "ORDER BY operation.id DESC"
+        val orderClause = "ORDER BY operation.id ${if (descending) "DESC" else "ASC"}"
         val whereClause = if (whereConditions.size > 0) {
             "WHERE ${whereConditions.joinToString(" AND ")}"
         } else {
