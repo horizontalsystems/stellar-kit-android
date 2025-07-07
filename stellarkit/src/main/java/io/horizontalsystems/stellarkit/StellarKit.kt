@@ -222,7 +222,12 @@ class StellarKit(
             transactionBuilder.addMemo(Memo.text(memo))
         }
 
-        val transaction = transactionBuilder.build()
+        sendTransaction(transactionBuilder.build())
+    }
+
+    private fun sendTransaction(transaction: Transaction) {
+        if (!keyPair.canSign()) throw WalletError.WatchOnly
+
         transaction.sign(keyPair)
 
         try {
@@ -232,6 +237,13 @@ class StellarKit(
             Log.e("AAA", "Something went wrong!", e)
             throw e
         }
+    }
+
+    fun sendTransaction(transactionEnvelope: String) {
+        val transaction = Transaction.fromEnvelopeXdr(transactionEnvelope, stellarNetwork)
+        check(transaction is Transaction)
+
+        sendTransaction(transaction)
     }
 
     fun doesAccountExist(accountId: String) = try {
