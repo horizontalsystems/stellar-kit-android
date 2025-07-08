@@ -25,6 +25,7 @@ import org.stellar.sdk.exception.BadRequestException
 import org.stellar.sdk.operations.ChangeTrustOperation
 import org.stellar.sdk.operations.CreateAccountOperation
 import org.stellar.sdk.operations.PaymentOperation
+import org.stellar.sdk.xdr.TransactionEnvelope
 import java.math.BigDecimal
 
 class StellarKit(
@@ -300,6 +301,15 @@ class StellarKit(
             getKeyPair(stellarWallet).secretSeed?.let {
                 String(it)
             }
+
+        fun estimateFee(transactionEnvelope: String): BigDecimal? {
+            val envelope = TransactionEnvelope.fromXdrBase64(transactionEnvelope)
+            val fee = envelope.v1?.tx?.fee ?: envelope.v0?.tx?.fee
+
+            return fee?.let {
+                fee.uint32.number.toBigInteger().toBigDecimal(7)
+            }
+        }
     }
 }
 
