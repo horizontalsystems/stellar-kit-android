@@ -38,11 +38,7 @@ class StellarKit(
     val isMainNet = network == Network.MainNet
     val sendFee: BigDecimal = BigDecimal(Transaction.MIN_BASE_FEE.toBigInteger(), 7)
 
-    private val serverUrl = when (network) {
-        Network.MainNet -> "https://horizon.stellar.lobstr.co"
-        Network.TestNet -> "https://horizon-testnet.stellar.org"
-    }
-    private val server = Server(serverUrl)
+    private val server = getServer(network)
     private val accountId = keyPair.accountId
     private val balancesManager = BalancesManager(
         server,
@@ -161,19 +157,8 @@ class StellarKit(
 
     fun isAssetEnabled(asset: StellarAsset.Asset) = isAssetEnabled(asset, accountId)
 
-    fun isAssetEnabled(asset: StellarAsset.Asset, recipient: String): Boolean {
-        try {
-            val account = server.accounts().account(recipient)
-
-            return account.balances.any {
-                asset.code == it.assetCode && asset.issuer == it.assetIssuer
-            }
-        } catch (e: BadRequestException) {
-            if (e.code == 404) {
-                return false
-            }
-            throw e
-        }
+    fun isAssetEnabled(asset: StellarAsset.Asset, accountId: String): Boolean {
+        return isAssetEnabled(server, asset, accountId)
     }
 
     fun getEnabledAssetsCached(): List<StellarAsset.Asset> {
@@ -308,6 +293,34 @@ class StellarKit(
 
             return fee?.let {
                 fee.uint32.number.toBigInteger().toBigDecimal(7)
+            }
+        }
+
+        fun isAssetEnabled(network: Network, asset: StellarAsset.Asset, accountId: String): Boolean {
+            return isAssetEnabled(getServer(network), asset, accountId)
+        }
+
+        private fun getServer(network: Network): Server {
+            val serverUrl = when (network) {
+                Network.MainNet -> "https://horizon.stellar.lobstr.co"
+                Network.TestNet -> "https://horizon-testnet.stellar.org"
+            }
+
+            return Server(serverUrl)
+        }
+
+        private fun isAssetEnabled(server: Server, asset: StellarAsset.Asset, accountId: String): Boolean {
+            try {
+                val account = server.accounts().account(accountId)
+
+                return account.balances.any {
+                    asset.code == it.assetCode && asset.issuer == it.assetIssuer
+                }
+            } catch (e: BadRequestException) {
+                if (e.code == 404) {
+                    return false
+                }
+                throw e
             }
         }
     }
