@@ -302,7 +302,7 @@ class StellarKit(
 
         private fun getServer(network: Network): Server {
             val serverUrl = when (network) {
-                Network.MainNet -> "https://horizon.stellar.lobstr.co"
+                Network.MainNet -> "https://horizon.stellar.org"
                 Network.TestNet -> "https://horizon-testnet.stellar.org"
             }
 
