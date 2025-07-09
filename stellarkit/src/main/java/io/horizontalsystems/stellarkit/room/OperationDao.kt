@@ -73,13 +73,13 @@ interface OperationDao {
     @RawQuery
     fun operations(query: SupportSQLiteQuery): List<Operation>
 
-    @Query("SELECT * FROM Operation ORDER BY id DESC LIMIT 0, 1")
+    @Query("SELECT * FROM Operation ORDER BY id DESC LIMIT 1")
     fun latestOperation(): Operation?
 
-    @Query("SELECT * FROM OperationSyncState LIMIT 0, 1")
+    @Query("SELECT * FROM OperationSyncState LIMIT 1")
     fun operationSyncState(): OperationSyncState?
 
-    @Query("SELECT * FROM Operation ORDER BY id ASC LIMIT 0, 1")
+    @Query("SELECT * FROM Operation ORDER BY id ASC LIMIT 1")
     fun oldestOperation(): Operation?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
