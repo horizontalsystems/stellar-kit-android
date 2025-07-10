@@ -265,6 +265,11 @@ class StellarKit(
             return StellarKit(keyPair, network, db)
         }
 
+        fun getAccountId(stellarWallet: StellarWallet): String {
+            val keyPair = getKeyPair(stellarWallet)
+            return keyPair.accountId
+        }
+
         private fun getKeyPair(stellarWallet: StellarWallet): KeyPair = when (stellarWallet) {
             is StellarWallet.Seed -> KeyPair.fromBip39Seed(stellarWallet.seed, 0)
             is StellarWallet.WatchOnly -> KeyPair.fromAccountId(stellarWallet.addressStr)
