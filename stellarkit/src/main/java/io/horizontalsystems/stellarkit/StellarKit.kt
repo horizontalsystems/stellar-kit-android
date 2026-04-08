@@ -328,6 +328,9 @@ class StellarKit(
         }
 
         private fun isAssetEnabled(server: Server, asset: StellarAsset.Asset, accountId: String): Boolean {
+
+            server.assets().assetCode().execute()
+
             try {
                 val account = server.accounts().account(accountId)
 

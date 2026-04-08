@@ -1,6 +1,5 @@
 # StellarKit Android
 
-
 StellarKit is a lightweight and modular client for interacting with the [Stellar](https://www.stellar.org) blockchain, written in Kotlin for Android applications. It's implemented and used by [Unstoppable Wallet](https://github.com/horizontalsystems/unstoppable-wallet-android), a multi-currency crypto wallet.
 
 ## Features
