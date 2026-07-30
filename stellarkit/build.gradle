@@ -2,6 +2,24 @@ plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
     id 'com.google.devtools.ksp'
+    id 'maven-publish'
+}
+
+// Local development: `./gradlew :stellarkit:publishToMavenLocal` publishes the kit as
+// com.github.horizontalsystems:stellar-kit-android:local, so the wallet can consume an
+// unpublished kit build by setting stellarKit = "local" in its version catalog.
+// JitPack ignores this and publishes under the commit hash as usual.
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.github.horizontalsystems'
+                artifactId = 'stellar-kit-android'
+                version = 'local'
+            }
+        }
+    }
 }
 
 android {
@@ -37,6 +55,11 @@ dependencies {
     ksp "androidx.room:room-compiler:$room_version"
 
     api 'org.stellar:wallet-sdk:2.0.0'
+    // wallet-sdk 2.0.0 pins stellar-sdk 1.0.0, whose XDR predates Protocol 23 —
+    // parsing a transaction with SorobanTransactionData ext v1 (e.g. Axelar ITS
+    // interchain_transfer built by uswap-server) fails with "Unknown enum value".
+    // Force the P23-aware SDK on top.
+    api 'network.lightsail:stellar-sdk:4.0.1'
 
     implementation 'androidx.core:core-ktx:1.16.0'
     implementation 'androidx.appcompat:appcompat:1.7.0'
