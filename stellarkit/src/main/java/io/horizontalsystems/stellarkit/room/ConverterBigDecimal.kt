@@ -51,3 +51,34 @@ class ConverterStellarAssetAsset : Converter<StellarAsset.Asset> {
     @TypeConverter
     override fun toString(v: StellarAsset.Asset?) = v?.id
 }
+
+// Serialized as `type/fromOrEmpty/toOrEmpty/assetId/amount` per change, `;`-joined.
+// None of the fields can contain the separators: addresses and asset codes are
+// alphanumeric (asset ids use `:`), amounts are plain decimals, type is a bare word.
+class ConverterContractBalanceChanges : Converter<List<Operation.ContractBalanceChange>> {
+    @TypeConverter
+    override fun fromString(s: String?) = s
+        ?.takeIf { it.isNotEmpty() }
+        ?.split(";")
+        ?.mapNotNull { entry ->
+            val parts = entry.split("/")
+            if (parts.size != 5) return@mapNotNull null
+
+            try {
+                Operation.ContractBalanceChange(
+                    type = parts[0],
+                    from = parts[1].takeIf { it.isNotEmpty() },
+                    to = parts[2].takeIf { it.isNotEmpty() },
+                    asset = StellarAsset.fromId(parts[3]),
+                    amount = BigDecimal(parts[4]),
+                )
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+    @TypeConverter
+    override fun toString(v: List<Operation.ContractBalanceChange>?) = v?.joinToString(";") {
+        listOf(it.type, it.from.orEmpty(), it.to.orEmpty(), it.asset.id, it.amount.toPlainString()).joinToString("/")
+    }
+}
