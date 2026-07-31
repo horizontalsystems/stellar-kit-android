@@ -118,15 +118,15 @@ class StellarKit(
         ).awaitAll()
     }
 
-    fun sendNative(recipient: String, amount: BigDecimal, memo: String?) {
-        payment(AssetTypeNative(), recipient, amount, memo)
+    fun sendNative(recipient: String, amount: BigDecimal, memo: String?): String {
+        return payment(AssetTypeNative(), recipient, amount, memo)
     }
 
-    fun sendAsset(assetId: String, recipient: String, amount: BigDecimal, memo: String?) {
-        payment(Asset.create(assetId), recipient, amount, memo)
+    fun sendAsset(assetId: String, recipient: String, amount: BigDecimal, memo: String?): String {
+        return payment(Asset.create(assetId), recipient, amount, memo)
     }
 
-    fun createAccount(accountId: String, startingBalance: BigDecimal, memo: String?) {
+    fun createAccount(accountId: String, startingBalance: BigDecimal, memo: String?): String {
         val destination = KeyPair.fromAccountId(accountId)
 
         val createAccountOperation = CreateAccountOperation.builder()
@@ -134,7 +134,7 @@ class StellarKit(
             .startingBalance(startingBalance)
             .build()
 
-        sendTransaction(createAccountOperation, memo)
+        return sendTransaction(createAccountOperation, memo)
     }
 
     fun validateEnablingAsset() {
@@ -176,7 +176,7 @@ class StellarKit(
         sendTransaction(changeTrustOperation, memo)
     }
 
-    private fun payment(asset: Asset, recipient: String, amount: BigDecimal, memo: String?) {
+    private fun payment(asset: Asset, recipient: String, amount: BigDecimal, memo: String?): String {
         val destination = KeyPair.fromAccountId(recipient)
 
         // First, check to make sure that the destination account exists.
@@ -191,10 +191,10 @@ class StellarKit(
             .amount(amount)
             .build()
 
-        sendTransaction(paymentOperation, memo)
+        return sendTransaction(paymentOperation, memo)
     }
 
-    private fun sendTransaction(operation: org.stellar.sdk.operations.Operation, memo: String?) {
+    private fun sendTransaction(operation: org.stellar.sdk.operations.Operation, memo: String?): String {
         if (!keyPair.canSign()) throw WalletError.WatchOnly
 
         val sourceAccount = server.accounts().account(accountId)
@@ -208,10 +208,11 @@ class StellarKit(
             transactionBuilder.addMemo(Memo.text(memo))
         }
 
-        sendTransaction(transactionBuilder.build())
+        return sendTransaction(transactionBuilder.build())
     }
 
-    private fun sendTransaction(transaction: Transaction) {
+    // Returns the hash Horizon reports for the submitted transaction.
+    private fun sendTransaction(transaction: Transaction): String {
         if (!keyPair.canSign()) throw WalletError.WatchOnly
 
         transaction.sign(keyPair)
@@ -219,17 +220,18 @@ class StellarKit(
         try {
             val response = server.submitTransaction(transaction)
             Log.e("AAA", "Success! $response")
+            return response.hash
         } catch (e: Exception) {
             Log.e("AAA", "Something went wrong!", e)
             throw e
         }
     }
 
-    fun sendTransaction(transactionEnvelope: String) {
+    fun sendTransaction(transactionEnvelope: String): String {
         val transaction = Transaction.fromEnvelopeXdr(transactionEnvelope, stellarNetwork)
         check(transaction is Transaction)
 
-        sendTransaction(transaction)
+        return sendTransaction(transaction)
     }
 
     fun signTransaction(transactionEnvelope: String): String {
