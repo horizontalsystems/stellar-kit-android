@@ -13,13 +13,17 @@ import androidx.room.TypeConverters
         OperationSyncState::class,
         Tag::class,
     ],
-    version = 1
+    // 2: Operation gained pathPayment + contractBalanceChanges. Destructive fallback is
+    // fine — operations resync from Horizon (and the old versions never stored these ops'
+    // payloads anyway).
+    version = 2
 )
 @TypeConverters(
     ConverterBigDecimal::class,
     ConverterStellarAsset::class,
     ConverterStellarAssetAsset::class,
     ConverterListOfStrings::class,
+    ConverterContractBalanceChanges::class,
 )
 abstract class KitDatabase : RoomDatabase() {
     abstract fun balanceDao(): BalanceDao
